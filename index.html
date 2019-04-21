@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="None">
+        
+        
+        <link rel="shortcut icon" href="img/favicon.ico">
+        <title>Penambangan dan Pencarian Web (Web Mining 2019)</title>
+        <link href="css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="css/font-awesome.min.css" rel="stylesheet">
+        <link href="css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+        <script src="js/jquery-1.10.2.min.js" defer></script>
+        <script src="js/bootstrap-3.0.3.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body class="homepage">
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+
+                <!-- Collapsed navigation -->
+                <div class="navbar-header">
+                    <a class="navbar-brand" href=".">Penambangan dan Pencarian Web (Web Mining 2019)</a>
+                </div>
+
+                <!-- Expanded navigation -->
+                <div class="navbar-collapse collapse">
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="main active"><a href="#pengantar">Pengantar</a></li>
+        <li class="main "><a href="#crawling">Crawling</a></li>
+        <li class="main "><a href="#pre-processing">Pre-Processing</a></li>
+        <li class="main "><a href="#vsm">VSM</a></li>
+        <li class="main "><a href="#tf-idf">TF-IDF</a></li>
+        <li class="main "><a href="#seleksi-fitur">Seleksi Fitur</a></li>
+        <li class="main "><a href="#clustering">Clustering</a></li>
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h2 id="pengantar">Pengantar</h2>
+<p>WENI PRATIWI S 160411100013</p>
+<blockquote>
+<p>using Anaconda</p>
+</blockquote>
+<p>Web mining atau penambangan web merupakan proses ekstraksi pola dari data-data pada suatu website. Terdiridari 3 bagian yaitu :</p>
+<ol>
+<li>Web content mining</li>
+<li>Web structure mining</li>
+<li>Web usage mining</li>
+</ol>
+<p>Web content mining adalah proses ekstraksi pola/informasi dari dokumen atau data. Cara kerjanya adalah dengan cara mengekstraksi <em>key word</em> dari data, bisa berupa teks, citra, audio, video, metadata dan hyperlink.</p>
+<p><strong>website :</strong> "https://www.dicoding.com/events?q=&amp;criteria=&amp;sort=&amp;sort_direction=desc&amp;page=?"</p>
+<p><strong>data :</strong> 10 pages (11 event/page) atau 110 event/data</p>
+<h2 id="crawling"><em>Crawling</em></h2>
+<hr />
+<blockquote>
+<p>using BeautifulSoup</p>
+</blockquote>
+<pre><code class="python">from requests import get
+from bs4 import BeautifulSoup
+</code></pre>
+
+<p>Proses pertama adalah melakukan scan/crawl pada halaman web, dan mengambil data yang diinginkan.</p>
+<p><em><u>Proses crawl :</u></em></p>
+<pre><code class="python">judul=[]
+developer=[]
+deskripsi=[]
+urls=[str(i) for i in range (1,11)]
+</code></pre>
+
+<p>Buat list untuk menampung masing-masing data yang kita inginkan, list <em>urls</em> digunakan untuk menampung page/halaman (1-10).</p>
+<pre><code class="python">for url in urls :
+    page=get(&quot;https://www.dicoding.com/events?q=&amp;criteria=&amp;sort=&amp;sort_direction=desc&amp;page=&quot;+url)
+    soup=BeautifulSoup(page.content,'html.parser')
+    jdl=soup.findAll(class_='item-box-name')
+    dev=soup.findAll('div',attrs={'class':'item-box-main-information'})
+    desk=soup.findAll('div',attrs={'class':'item-box-main-information'})
+    for a in range (len(jdl)):
+        judul+=[jdl[a].getText()]
+    for b in range (len(dev)):
+        developer+=[dev[b].find('p').text]
+    for c in range(len(desk)):
+        deskripsi+=[desk[c].find_all('p')[1].text]
+</code></pre>
+
+<p>Kemudian kita lakukan crawl pada setiap halaman (1-10) dari website. <em>page</em> menampung link halaman , dimana <em>url</em> merupakan nomor halaman.</p>
+<p><strong>contoh :</strong></p>
+<p>page=get("https://www.dicoding.com/events?q=&amp;criteria=&amp;sort=&amp;sort_direction=desc&amp;page="+url)</p>
+<p>urls=1 sampai 10</p>
+<p>jika url = 1</p>
+<p>page=get("https://www.dicoding.com/events?q=&amp;criteria=&amp;sort=&amp;sort_direction=desc&amp;page="+"1")</p>
+<p>maka sistem akan mengakses halaman/page 1 dari website.</p>
+<hr />
+<p>Mengambil informasi yang kita inginkan, lakukan <em>inspeksi elemen</em> dan ambil tag html dari data.</p>
+<ul>
+<li>data judul :</li>
+</ul>
+<p><code>&lt;a class='item-box-name'&gt;</code></p>
+<ul>
+<li>data developer :</li>
+</ul>
+<p><code>&lt;div class='item-box-main-information'&gt;</code></p>
+<p>pada tag 'p' pertama --&gt;<em>.find('p')</em></p>
+<ul>
+<li>data deskripsi :</li>
+</ul>
+<p><code>&lt;div class='item-box-main-information'&gt;</code></p>
+<p>pada tag 'p' kedua --&gt;.find_all('p')[1]</p>
+<p>Kemudian tambahkan setiap data pada list masing-masing.</p>
+<p><em><u>Save data ke db :</u></em></p>
+<p>Setelah berhasil mengambil data dari setiap halaman, kita tampung dalam db menggunakan sqlite.</p>
+<pre><code class="python">import sqlite3
+
+conn = sqlite3.connect('events.db')
+conn.execute('''CREATE TABLE if not exists EVENTS
+         (NAMA_EVENT VARCHAR NOT NULL,
+         DEVELOPER VARCHAR NOT NULL,
+         DESKRIPSI VARCHAR NOT NULL);''')
+for i in range (len(judul)):
+    conn.execute('INSERT INTO EVENTS(NAMA_EVENT,DEVELOPER,DESKRIPSI) values (?, ?, ?)', (judul[i], developer[i], deskripsi[i]))
+</code></pre>
+
+<p>Code diatas digunakan untuk membuat db <em>events.db</em> dengan 3 kolom (judul,developer dan deskripsi), kemudian menampung setiap data dari list hasil crawl ke masing-masing kolom dari db.</p>
+<h2 id="pre-processing">Pre-<em>Processing</em></h2>
+<hr />
+<blockquote>
+<p>using Sastrawi + KBI</p>
+</blockquote>
+<pre><code class="python">from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
+from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
+</code></pre>
+
+<p>Data yang telah kita dapat perlu dilakukan pre-processing untuk mendapatkan <em>key word</em> yang akan menjadi sebuah fitur (kata penting).</p>
+<ol>
+<li>
+<p>Tokenizing - mengambil setiap kata dari kalimat</p>
+</li>
+<li>
+<p>Stemming - mengambil kata baku dari hasil tokenizing</p>
+</li>
+<li>
+<p>Filtering/remove - membuang kata yang termasuk kata penghubung</p>
+</li>
+<li>
+<p>Penambahan kata pada list stopword untuk menghilangkan kata hubung/kata tidak penting.</p>
+</li>
+</ol>
+<p>akses : Anaconda3\Lib\site-packages\Sastrawi\StopWordRemover\StopWordRemoverFactory.py</p>
+<p><u><em>ekstraksi kata dasar :</em></u> </p>
+<pre><code class="python">factory = StopWordRemoverFactory()
+stopword = factory.create_stop_word_remover ()
+factorym = StemmerFactory ()
+stemmer = factorym.create_stemmer ()
+
+tmp = ''
+for i in deskripsi:
+    tmp = tmp + ' ' +i
+
+hasil = []
+for i in tmp.split():
+    try :
+        if i.isalpha() and (not i in hasil) and len(i)&gt;2:
+            # Menghilangkan Kata tidak penting
+            stop = stopword.remove(i)
+            if stop != &quot;&quot;:
+                out = stemmer.stem(stop)
+                hasil.append(out)
+    except:
+        continue
+katadasar=hasil
+</code></pre>
+
+<p>Code diatas digunakan untuk mengekstaksi kata dasar, membuang fitur yang bukan berupa text dan fitur yang termasuk kata hubung menggunakan library dari sastrawi.</p>
+<p><strong>contoh :</strong></p>
+<p>kalimat input : "saya jalan2 membeli sayur di pasar"</p>
+<p>kalimat output : "saya jalan beli sayur pasar"</p>
+<hr />
+<p><u><em>cek kata dalam KBI :</em></u></p>
+<pre><code class="python">conn = sqlite3.connect('KBI.db')
+cur_kbi = conn.execute(&quot;SELECT* from KATA&quot;)
+def LinearSearch (kbi,kata):
+    found=False
+    posisi=0
+    while posisi &lt; len (kata) and not found :
+        if kata[posisi]==kbi:
+            found=True
+        posisi=posisi+1
+    return found
+</code></pre>
+
+<p>Dalam proses ini kita memerlukan database KBI untuk mengecek setiap kata yang sesuai/baku. Kemudian buat sebuah function <em>LinearSearch</em> untuk mengecek setiap kata pada <em>katadasar</em> yang sesuai dengan KBI, dengan return value <em>found</em> .</p>
+<pre><code class="python">berhasil=[]
+for kata in cur_kbi :
+    ketemu=LinearSearch(kata[0],katadasar)
+    if ketemu :
+        kata = kata[0]
+        berhasil.append(kata)
+</code></pre>
+
+<ul>
+<li>Jika <em>found=true</em> maka kata tersebut merupakan kata baku sesuai KBI, jadi kata tersebut kita simpan pada list <em>berhasil</em>. </li>
+<li>Jika <em>found=false</em> maka kata tersebut bukan kata baku sesuai KBI, jadi kata tersebut tidak perlu disimpan.</li>
+</ul>
+<h2 id="vsm"><em>VSM</em></h2>
+<hr />
+<p>VSM merupakan proses menghitung frekuensi kemunculan setiap kata pada setiap data, dalam bentuk matriks.</p>
+<p>data 1 : "telur ayam goreng"</p>
+<p>data 2 : "masak telur goreng makan ayam goreng"</p>
+<table>
+<thead>
+<tr>
+<th align="left">data</th>
+<th>ayam</th>
+<th>goreng</th>
+<th>masak</th>
+<th>makan</th>
+<th>telur</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td align="left">2</td>
+<td>1</td>
+<td>2</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="python">conn = sqlite3.connect('events.db')
+matrix=[]
+cursor = conn.execute(&quot;SELECT* from EVENTS&quot;)
+for row in cursor:
+    tampung = []
+    for i in berhasil:
+        tampung.append(row[2].lower().count(i))
+    matrix.append(tampung)
+</code></pre>
+
+<p>code diatas akan mengecek dan menghitung berapa kali kata pada list <em>berhasil</em>  muncul pada setiap baris data dalam database <em>events.db</em>, kemudian menampung hasil frekuensi kemunculan dalam list <em>matrix</em>.</p>
+<pre><code class="python">import csv
+
+with open('VSMkbi.csv', mode='w') as employee_file:
+    employee_writer = csv.writer(employee_file, delimiter=',', quotechar='&quot;', quoting=csv.QUOTE_MINIMAL)
+    employee_writer.writerow(berhasil)
+    for i in matrix:
+        employee_writer.writerow(i)
+</code></pre>
+
+<p>kemudian simpan hasil dalam file csv, dengan kolom pertama berisi kata/fitur dan kolom selanjutnya berisi matriks.</p>
+<h2 id="tf-idf"><em>TF-IDF</em></h2>
+<hr />
+<p>TF-IDF merupakan kepanjangan dari Term Frequence dan Invers Document Frequence , dengan rumus TFxIDF. Maka kita memerlukan nilai TF dan nilai IDF. </p>
+<p><em><u>menghitung TF</u></em></p>
+<p>TF sama dengan VSM yaitu menghitung frekuensi kemunculan kata pada setiap data.</p>
+<p><em><u>menghitung IDF</u></em></p>
+<p>pertama kita hitung DF (Document Frekuensi)</p>
+<p><strong>contoh :</strong></p>
+<p>data 1 : "telur ayam goreng"</p>
+<p>data 2 : "masak telur goreng makan ayam goreng"</p>
+<table>
+<thead>
+<tr>
+<th>kata</th>
+<th>jumlah data yang mengandung kata tersebut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ayam</td>
+<td>2</td>
+</tr>
+<tr>
+<td>goreng</td>
+<td>2</td>
+</tr>
+<tr>
+<td>masak</td>
+<td>1</td>
+</tr>
+<tr>
+<td>makan</td>
+<td>1</td>
+</tr>
+<tr>
+<td>telur</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="python">from math import log10
+
+df = list()
+for d in range (len(matrix[0])):
+    total = 0
+    for i in range(len(matrix)):
+        if matrix[i][d] !=0:
+            total += 1
+    df.append(total)
+
+idf = list()
+for i in df:
+    tmp = 1 + log10(len(matrix)/(1+i))
+    idf.append(tmp)
+</code></pre>
+
+<p>kemudian kita hitung TF x IDF</p>
+<pre><code>tf = matrix
+tfidf = []
+for baris in range(len(matrix)):
+    tampungBaris = []
+    for kolom in range(len(matrix[0])):
+        tmp = tf[baris][kolom] * idf[kolom]
+        tampungBaris.append(tmp)
+    tfidf.append(tampungBaris)
+</code></pre>
+
+<p>hasil hitung akan ditampung pada list <em>tfidf</em>  , kemudian disimpan dalam bentuk csv  dengan kolom pertama berisi fitur.</p>
+<pre><code class="python">with open('TFIDF.csv', mode='w') as employee_file:
+    employee_writer = csv.writer(employee_file, delimiter=',', quotechar='&quot;', quoting=csv.QUOTE_MINIMAL)
+    employee_writer.writerow(berhasil)
+    for i in tfidf:
+        employee_writer.writerow(i)
+</code></pre>
+
+<p>TF-IDF digunakan untuk mendapatkan bobot yang lebih akurat dibandingkan dengan hasil VSM.</p>
+<h2 id="seleksi-fitur"><em>Seleksi Fitur</em></h2>
+<hr />
+<p>Proses seleksi fitur digunakan untuk mengurangi jumlah kata/fitur yang tidak penting, banyaknya fitur sangat berpengaruh pada hasil akhir clustering dan waktu untuk komputasi oleh karena itu seleksi fitur sangat dibutuhkan.</p>
+<p><strong>pearson correlation</strong></p>
+<p>Merupakan metode seleksi fitur sederhana dengan cara mengukur korelasi/hubungan setiap fitur, semakin tinggi nilai korelasi maka semakin kuat hubungan fiturnya.</p>
+<pre><code class="python">def pearsonCalculate(data, u,v):
+    &quot;i, j is an index&quot;
+    atas=0; bawah_kiri=0; bawah_kanan = 0
+    for k in range(len(data)):
+        atas += (data[k,u] - meanFitur[u]) * (data[k,v] - meanFitur[v])
+        bawah_kiri += (data[k,u] - meanFitur[u])**2
+        bawah_kanan += (data[k,v] - meanFitur[v])**2
+    bawah_kiri = bawah_kiri ** 0.5
+    bawah_kanan = bawah_kanan ** 0.5
+    return (atas/(bawah_kiri * bawah_kanan))
+def meanF(data):
+    meanFitur=[]
+    for i in range(len(data[0])):
+        meanFitur.append(sum(data[:,i])/len(data))
+    return np.array(meanFitur)
+def seleksiFiturPearson(data, threshold, berhasil):
+    global meanFitur
+    data = np.array(data)
+    meanFitur = meanF(data)
+    u=0
+    while u &lt; len(data[0]):
+        dataBaru=data[:, :u+1]
+        meanBaru=meanFitur[:u+1]
+        seleksikata=berhasil[:u+1]
+        v = u
+        while v &lt; len(data[0]):
+            if u != v:
+                value = pearsonCalculate(data, u,v)
+                if value &lt; threshold:
+                    dataBaru = np.hstack((dataBaru, data[:, v].reshape(data.shape[0],1)))
+                    meanBaru = np.hstack((meanBaru, meanFitur[v]))
+                    seleksikata = np.hstack((seleksikata, berhasil[v]))
+            v+=1
+        data = dataBaru
+        meanFitur=meanBaru
+        berhasil=seleksikata
+        if u%50 == 0 : print(&quot;proses : &quot;, u, data.shape)
+        u+=1
+    return data, seleksikata
+
+xBaru2,kataBaru = seleksiFiturPearson(tfidf, 0.9, berhasil)
+xBaru1,kataBaru2 = seleksiFiturPearson(xBaru2, 0.8, berhasil)
+</code></pre>
+
+<h2 id="clustering"><em>Clustering</em></h2>
+<hr />
+<p>Clustering dilakukan untuk mengelompokkan  data dengan karakteristik yang sama ke suatu ‘class’ yang sama dan data dengan karakteristik yang berbeda ke ‘class’ yang lain.</p>
+<p>Pada permasalahan ini digunakan fuzzy c-means, untuk mengelopokkan data menjadi 3 class. parameter dari fuzzy c-means : data, jumlah cluster, pembobot, eror maksimal dan iterasi maksimal.</p>
+<pre><code>cntr, u, u0, distant, fObj, iterasi, fpc =  fuzz.cmeans(xBaru1.T, 3, 2, 0.00001, 1000, seed=0)
+membership = np.argmax(u, axis=0)
+
+silhouette = silhouette_samples(xBaru1, membership)
+s_avg = silhouette_score(xBaru1, membership, random_state=10)
+
+for i in range(len(tfidf)):
+    print(&quot;c &quot;+str(membership[i]))
+print(s_avg)
+</code></pre>
+
+<p>simpan hasil clustering </p>
+<pre><code>def write_csv(nama_file, isi, tipe='w'):
+    'tipe=w; write; tipe=a; append;'
+    with open(nama_file, mode=tipe) as tbl:
+        tbl_writer = csv.writer(tbl, delimiter=',', quotechar='&quot;', quoting=csv.QUOTE_MINIMAL)
+        for row in isi:
+            tbl_writer.writerow(row)
+write_csv(&quot;Cluster.csv&quot;, [[&quot;Cluster&quot;]])
+write_csv(&quot;Cluster.csv&quot;, [membership],        &quot;a&quot;)
+write_csv(&quot;Cluster.csv&quot;, [[&quot;silhouette&quot;]],    &quot;a&quot;)
+write_csv(&quot;Cluster.csv&quot;, [silhouette],        &quot;a&quot;)
+write_csv(&quot;Cluster.csv&quot;, [[&quot;Keanggotaan&quot;]],   &quot;a&quot;)
+write_csv(&quot;Cluster.csv&quot;, u,                   &quot;a&quot;)
+write_csv(&quot;Cluster.csv&quot;, [[&quot;pusat Cluster&quot;]], &quot;a&quot;)
+write_csv(&quot;Cluster.csv&quot;, cntr,                &quot;a&quot;)
+</code></pre></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = ".",
+                shortcuts = {"help": 191, "search": 83, "previous": 80, "next": 78};
+        </script>
+        <script src="js/base.js" defer></script>
+        <script src="search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="Keyboard Shortcuts Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Keyboard Shortcuts</h4>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
+
+<!--
+MkDocs version : 1.0.4
+Build Date UTC : 2019-04-21 21:42:01
+-->
